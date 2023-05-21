@@ -207,6 +207,7 @@ declare global {
 
 interface DOMRouterOpts {
   basename?: string;
+  history?: BrowserHistory;
   future?: Partial<Omit<FutureConfig, "v7_prependBasename">>;
   hydrationData?: HydrationState;
   window?: Window;
@@ -222,7 +223,7 @@ export function createBrowserRouter(
       ...opts?.future,
       v7_prependBasename: true,
     },
-    history: createBrowserHistory({ window: opts?.window }),
+    history: opts?.history ?? createBrowserHistory({ window: opts?.window }),
     hydrationData: opts?.hydrationData || parseHydrationData(),
     routes,
     mapRouteProperties,
@@ -296,6 +297,7 @@ export interface BrowserRouterProps {
   basename?: string;
   children?: React.ReactNode;
   window?: Window;
+  history?: BrowserHistory;
 }
 
 /**
@@ -305,10 +307,12 @@ export function BrowserRouter({
   basename,
   children,
   window,
+  history: historyProp,
 }: BrowserRouterProps) {
   let historyRef = React.useRef<BrowserHistory>();
   if (historyRef.current == null) {
-    historyRef.current = createBrowserHistory({ window, v5Compat: true });
+    historyRef.current =
+      historyProp ?? createBrowserHistory({ window, v5Compat: true });
   }
 
   let history = historyRef.current;
